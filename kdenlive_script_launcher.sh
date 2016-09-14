@@ -62,6 +62,16 @@ fnExecAction()
 	esac
 }
 
+fnLoadFileData()
+{
+    file=$1
+    eval $(sed '/=/!d;/^ *#/d;s/=/ /;' < "$file" | while read -r key val
+    	do
+    	    str="$key='$val'"
+    	    echo "$str"
+    	      done)
+}
+
 fnProcessScripts()
 {
     fnPrintHeader
@@ -71,6 +81,8 @@ fnProcessScripts()
 	    fnPrintHeader
 	fi
 
+	# Load variables from kdenlive script to get information about the project
+	fnLoadFileData $file
 	tput cup $line 6
 	echo -en "\e[0;34mProcessing "; tput bold; echo -en $file; tput sgr0
 	fnIncrementLine 1
@@ -105,19 +117,8 @@ fnProcessScripts()
     fnShowMenu
 }
 
-fnLoadConfig()
-{
-    CONFIGFILE="./kdenlive_script_launcher.conf"
-    eval $(sed '/=/!d;/^ *#/d;s/=/ /;' < "$CONFIGFILE" | while read -r key val
-	do
-	    str="$key='$val'"
-	    echo "$str"
-	    done)
-}
-
 fnMain(){
-    fnLoadConfig
-    echo $KDENLIVE_SCRIPTS_PATH
+    fnLoadFileData "./kdenlive_script_launcher.conf"
     fnShowMenu
 }
 
