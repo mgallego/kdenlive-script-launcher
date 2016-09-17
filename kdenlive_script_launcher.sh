@@ -89,6 +89,8 @@ fnProcessScripts()
 	txt_file=$target'.txt'
 	tput cup $line 6
 	echo -en "\e[0;34mProcessing "; tput bold; echo -en $TARGET_0; tput sgr0
+	$file &>/dev/null &
+	pid=$!
 	fnIncrementLine 1
 	tput cup $line 5
 	echo "["
@@ -98,15 +100,16 @@ fnProcessScripts()
 	((total_files=total_files-1))
 	echo "$total_files Files remaining"
 	tput cup $line 6
+	sleep 2
 	percentage=`tail -1 $txt_file | cut -d: -f4 | sed -e 's/^ //' | sed -e 's/$ //'`
-	while [ "$percentage" != "100" ]; do
+	while [ "$percentage" != "100" ] && kill -0 $pid 2> /dev/null; do
 	    tput cup $line 0
 	    tput bold; echo -en $percentage%; tput sgr0
 	    tput cup $line 6
 	    for i in $(seq 1 $percentage); do
 		tput bold; echo -en '\e[0;32m#'; tput sgr0
 	    done
-	    percentage=`tail -1 $txt_file | cut -d: -f4 | sed -e 's/^ //' | sed -e 's/$ //'`
+	    percentage=`tail -1 $txt_file 2> /dev/null | cut -d: -f4 | sed -e 's/^ //' | sed -e 's/$ //'`
 	done
 	fnIncrementLine 5
     done
